@@ -29,7 +29,7 @@ public interface ITicketManagementService {
 
     List<TicketDto> findTicketsAssignedTo(String assignedTo);
 
-    List<TicketDto> findTicketsWithStatusAndPriority(String ticketId, String status, String priority);
+    List<TicketDto> findTicketsWithStatusAndPriority(String status, String priority);
 
     List<TicketDto> findTicketsCreatedBefore(LocalDateTime localDateTime);
 

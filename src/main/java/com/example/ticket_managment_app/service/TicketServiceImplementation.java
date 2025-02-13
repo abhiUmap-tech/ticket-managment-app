@@ -1,7 +1,6 @@
 package com.example.ticket_managment_app.service;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -10,6 +9,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import com.example.ticket_managment_app.dto.TicketDto;
+import com.example.ticket_managment_app.exceptions.TicketNotFoundException;
+import com.example.ticket_managment_app.exceptions.InvalidStatusException;
 import com.example.ticket_managment_app.model.Ticket;
 import com.example.ticket_managment_app.repository.ITicketRepo;
 
@@ -25,7 +26,7 @@ public class TicketServiceImplementation implements ITicketManagementService {
     @Override
     public TicketDto registerTicket(TicketDto ticketDto) {
         if(ticketDto==null)
-            throw new IllegalArgumentException("Ticket cannot be Null");
+            throw new TicketNotFoundException("Ticket cannot be Null");
         
         //Set the default values for the new  ticket
         ticketDto.setStatus(Optional.ofNullable(ticketDto.getStatus()).orElse("OPEN"));
@@ -46,7 +47,7 @@ public class TicketServiceImplementation implements ITicketManagementService {
     @Override
     public TicketDto findTicketById(String ticketId) {
         var ticket = repo.findById(ticketId)
-                                    .orElseThrow(() -> new IllegalArgumentException("Ticket not found"));
+                                    .orElseThrow(() -> new TicketNotFoundException("Ticket not found with the ID::" + ticketId));
         return modelMapper.map(ticket, TicketDto.class);                            
     }
 
@@ -61,7 +62,7 @@ public class TicketServiceImplementation implements ITicketManagementService {
     @Override
     public TicketDto updateTicket(TicketDto ticketDto) {
         if(ticketDto==null)
-            throw new IllegalArgumentException("Ticket cannot be Null");
+            throw new TicketNotFoundException("Ticket cannot be Null");
         //Convert the ticket and update the details
         var ticket = modelMapper.map(ticketDto, Ticket.class);
         
@@ -75,13 +76,13 @@ public class TicketServiceImplementation implements ITicketManagementService {
         var validStatues = List.of("OPEN", "IN_PROGRESS", "CLOSED");
 
         if(!validStatues.contains(status.toUpperCase()))
-            throw new IllegalArgumentException("Invalid Status value. Allowed status values are::"+ validStatues);
+            throw new InvalidStatusException("Invalid Status value. Allowed status values are::"+ validStatues);
 
         //Fetch the ticket by Id
         var optionalTicket = repo.findById(ticketId);
         
         if(optionalTicket.isEmpty())
-            throw new IllegalArgumentException("Ticket with the ID::" + ticketId + " not found");
+            throw new TicketNotFoundException("Ticket with the ID::" + ticketId + " not found");
 
         //Update the ticket status
         var ticket = optionalTicket.get();
@@ -96,7 +97,7 @@ public class TicketServiceImplementation implements ITicketManagementService {
     @Override
     public String deleteTicketById(String ticketId) {
        Ticket ticket = repo.findById(ticketId)
-                                                    .orElseThrow(() -> new IllegalArgumentException("Ticket Not found for the given Id::" + ticketId));
+                                                    .orElseThrow(() -> new TicketNotFoundException("Ticket Not found for the given Id::" + ticketId));
         repo.deleteById(ticket.getId());
         return "Ticket with the Id::" +  ticketId + " deleted successfully";
         
@@ -141,42 +142,29 @@ public class TicketServiceImplementation implements ITicketManagementService {
     }
 
     @Override
-    public List<TicketDto> findTicketsWithStatusAndPriority(String ticketId, String status, String priority) {
-        var validStatues = List.of("OPEN", "IN_PROGRESS", "CLOSED");
-        var  validPriorities = Arrays.asList("LOW", "MEDIUM", "HIGH");
-
-        if(!validStatues.contains(status.toUpperCase()) && !validPriorities.contains(priority.toUpperCase()))
-            throw new IllegalArgumentException("Invalid Status or Priority" + "Valid Status::" + validStatues + " Valid Priorities::" + validPriorities );
-
-        //Fetch the ticket by ID
-        var ticket = repo.findById(ticketId);
-
-        if(ticket.isEmpty())
-            throw  new IllegalArgumentException("Ticket with the ID::" + ticketId + "not found");
-
-        //Update the ticket status and priority
-        var ticketDetials = ticket.get();
-        ticketDetials.setStatus(status.toUpperCase());
-        ticketDetials.setPriority(priority.toUpperCase());
-        repo.save(ticketDetials);
-
-        return null;
-
-
-
-
+    public List<TicketDto> findTicketsWithStatusAndPriority
+    ( String status, String priority) {
+       
+        return repo.findByStatusAndPriority(status, priority)
+                            .stream()
+                                .map(ticket -> modelMapper.map(ticket, TicketDto.class))
+                                    .collect(Collectors.toList());
     }
 
     @Override
     public List<TicketDto> findTicketsCreatedBefore(LocalDateTime localDateTime) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findTicketsCreatedBefore'");
+        return repo.findByCreatedAtBefore(localDateTime)
+                            .stream()
+                                .map(ticket -> modelMapper.map(ticket, TicketDto.class))
+                                    .collect(Collectors.toList());
     }
 
     @Override
     public List<TicketDto> findTicketsCreatedAfter(LocalDateTime localDateTime) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findTicketsCreatedAfter'");
+        return repo.findByCreatedAtAfter(localDateTime)
+                            .stream()
+                                .map(ticket -> modelMapper.map(ticket, TicketDto.class))
+                                    .collect(Collectors.toList());
     }
 
     @Override
