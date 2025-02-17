@@ -18,7 +18,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorDetails> handleTicketNotFoundException(TicketNotFoundException ticektNotFoundException){
 
         var errorDetails = new ErrorDetails(ticektNotFoundException.getMessage(), 404, LocalDateTime.now());
-
         return new ResponseEntity<ErrorDetails>(errorDetails, HttpStatus.NOT_FOUND);
     }
 
@@ -26,7 +25,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorDetails> handleInvalidStatusException(InvalidStatusException invalidStatusException){
         
         var errorDetails = new ErrorDetails(invalidStatusException.getMessage(), 400, LocalDateTime.now());
+        return new ResponseEntity<ErrorDetails>(errorDetails, HttpStatus.BAD_REQUEST);
+    }
 
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorDetails> handleGlobalException(Exception exception){
+        var errorDetails = new ErrorDetails(exception.getMessage(), 400, LocalDateTime.now());
         return new ResponseEntity<ErrorDetails>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 
