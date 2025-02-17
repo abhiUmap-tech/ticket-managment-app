@@ -27,37 +27,37 @@ public class TicketController {
     private final ITicketManagementService service;
 
     @PostMapping("/register")
-    public ResponseEntity<TicketDto> registerTicket(@RequestBody TicketDto ticketDto){
+    public ResponseEntity<TicketDto> registerTicket(@RequestBody TicketDto ticketDto) {
         var responseBody = service.registerTicket(ticketDto);
-        return new ResponseEntity<>(responseBody,HttpStatus.CREATED);
+        return new ResponseEntity<>(responseBody, HttpStatus.CREATED);
     }
 
     @GetMapping("/findTicketById/{ticketId}")
-    public ResponseEntity<TicketDto> findTicketById(@PathVariable String ticketId){
+    public ResponseEntity<TicketDto> findTicketById(@PathVariable String ticketId) {
         var responseBody = service.findTicketById(ticketId);
-        return new ResponseEntity<>(responseBody, HttpStatus.FOUND);
+        return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 
     @GetMapping("/findAllTickets")
-    public ResponseEntity<List<TicketDto>> findAllTickets(){
+    public ResponseEntity<List<TicketDto>> findAllTickets() {
         var responseBody = service.findAllTickets();
         return new ResponseEntity<>(responseBody, HttpStatus.FOUND);
     }
 
     @PutMapping("/updateTicket")
-    public ResponseEntity<TicketDto> updateTicket(@RequestBody TicketDto ticketDto){
+    public ResponseEntity<TicketDto> updateTicket(@RequestBody TicketDto ticketDto) {
         var responseBody = service.updateTicket(ticketDto);
         return new ResponseEntity<>(responseBody, HttpStatus.CREATED);
     }
 
     @PatchMapping("/updateTicketStatus/{ticketId}/{status}")
-    public ResponseEntity<String> updateTicketStatus(@PathVariable String ticketId, @PathVariable String status){
+    public ResponseEntity<String> updateTicketStatus(@PathVariable String ticketId, @PathVariable String status) {
         var responseBody = service.updateTicketStatus(ticketId, status);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 
     @DeleteMapping("/deleteTicketById/{ticketId}")
-    public ResponseEntity<String> deleteTicketById(@PathVariable String ticketId){
+    public ResponseEntity<String> deleteTicketById(@PathVariable String ticketId) {
         var responseMessage = service.deleteTicketById(ticketId);
         return new ResponseEntity<>(responseMessage, HttpStatus.GONE);
     }
