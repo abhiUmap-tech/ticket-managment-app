@@ -169,14 +169,18 @@ public class TicketServiceImplementation implements ITicketManagementService {
 
     @Override
     public List<TicketDto> findTicketsAssignedToWithStatus(String assignedTo, String status) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findTicketsAssignedToWithStatus'");
+        return repo.findByAssignedToAndStatus(assignedTo, status)
+                            .stream()
+                                .map(ticket -> modelMapper.map(ticket, TicketDto.class))
+                                    .collect(Collectors.toList());
     }
 
     @Override
     public List<TicketDto> findHighPriorityOpenTicket() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findHighPriorityOpenTicket'");
+        return repo.findHighPriorityOpenTickets()
+                            .stream()
+                                .map(ticket -> modelMapper.map(ticket,TicketDto.class))
+                                    .collect(Collectors.toList());
     }
 
   
